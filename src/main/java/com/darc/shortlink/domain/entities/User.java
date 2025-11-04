@@ -1,30 +1,35 @@
 package com.darc.shortlink.domain.entities;
 
-import com.darc.shortlink.domain.models.Role;
 import jakarta.persistence.*;
+import org.hibernate.annotations.ColumnDefault;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Entity
-@Table(name="users")
+@Table(name = "users")
 public class User {
-
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "users_id_gen")
+    @SequenceGenerator(name = "users_id_gen", sequenceName = "users_id_seq", allocationSize = 1)
+    @Column(name = "id", nullable = false)
     private Long id;
 
-    @Column(unique = true, nullable = false)
+    @Column(name = "email", nullable = false, length = 100)
     private String email;
-    @Column(nullable = false)
-    private String name;
-    @Column(nullable = false)
+
+    @Column(name = "password", nullable = false, length = 100)
     private String password;
 
-    @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
-    private Role role;
+    @Column(name = "name", nullable = false, length = 100)
+    private String name;
 
-    private LocalDateTime createdAt = LocalDateTime.now();
+    @ColumnDefault("'ROLE_USER'")
+    @Column(name = "role", nullable = false, length = 20)
+    private String role;
+
+    @ColumnDefault("CURRENT_TIMESTAMP")
+    @Column(name = "created_at", nullable = false)
+    private Instant createdAt;
 
     public Long getId() {
         return id;
@@ -42,14 +47,6 @@ public class User {
         this.email = email;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public String getPassword() {
         return password;
     }
@@ -58,19 +55,28 @@ public class User {
         this.password = password;
     }
 
-    public Role getRole() {
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getRole() {
         return role;
     }
 
-    public void setRole(Role role) {
+    public void setRole(String role) {
         this.role = role;
     }
 
-    public LocalDateTime getCreatedAt() {
+    public Instant getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
+    public void setCreatedAt(Instant createdAt) {
         this.createdAt = createdAt;
     }
+
 }

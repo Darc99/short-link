@@ -1,34 +1,39 @@
 package com.darc.shortlink.domain.entities;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.ColumnDefault;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Entity
 @Table(name = "short_urls")
 public class ShortUrl {
-
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "short_urls_id_gen")
+    @SequenceGenerator(name = "short_urls_id_gen", sequenceName = "short_urls_id_seq", allocationSize = 1)
+    @Column(name = "id", nullable = false)
     private Long id;
 
-    @Column(unique = true, nullable = false)
-    private String shortLink;
+    @Column(name = "short_key", nullable = false, length = 10)
+    private String shortKey;
 
-    @Column(nullable = false)
+    @Column(name = "original_url", nullable = false, length = Integer.MAX_VALUE)
     private String originalUrl;
 
-    @ManyToOne
-    @JoinColumn(name="created_by")
-    private User createdBy;
+    @ColumnDefault("false")
+    @Column(name = "is_private", nullable = false)
+    private Boolean isPrivate = false;
 
-    private Boolean isPrivate;
+    @Column(name = "expires_at")
+    private Instant expiresAt;
 
-    private LocalDateTime createdAt = LocalDateTime.now();
-
-    private LocalDateTime expiresAt;
-
+    @ColumnDefault("0")
+    @Column(name = "click_count", nullable = false)
     private Long clickCount;
+
+    @ColumnDefault("CURRENT_TIMESTAMP")
+    @Column(name = "created_at", nullable = false)
+    private Instant createdAt;
 
     public Long getId() {
         return id;
@@ -38,12 +43,12 @@ public class ShortUrl {
         this.id = id;
     }
 
-    public String getShortLink() {
-        return shortLink;
+    public String getShortKey() {
+        return shortKey;
     }
 
-    public void setShortLink(String shortLink) {
-        this.shortLink = shortLink;
+    public void setShortKey(String shortKey) {
+        this.shortKey = shortKey;
     }
 
     public String getOriginalUrl() {
@@ -54,35 +59,19 @@ public class ShortUrl {
         this.originalUrl = originalUrl;
     }
 
-    public User getCreatedBy() {
-        return createdBy;
-    }
-
-    public void setCreatedBy(User createdBy) {
-        this.createdBy = createdBy;
-    }
-
-    public Boolean getPrivate() {
+    public Boolean getIsPrivate() {
         return isPrivate;
     }
 
-    public void setPrivate(Boolean aPrivate) {
-        isPrivate = aPrivate;
+    public void setIsPrivate(Boolean isPrivate) {
+        this.isPrivate = isPrivate;
     }
 
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public LocalDateTime getExpiresAt() {
+    public Instant getExpiresAt() {
         return expiresAt;
     }
 
-    public void setExpiresAt(LocalDateTime expiresAt) {
+    public void setExpiresAt(Instant expiresAt) {
         this.expiresAt = expiresAt;
     }
 
@@ -93,4 +82,13 @@ public class ShortUrl {
     public void setClickCount(Long clickCount) {
         this.clickCount = clickCount;
     }
+
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
+    }
+
 }
