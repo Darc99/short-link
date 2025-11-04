@@ -1,20 +1,31 @@
 package com.darc.shortlink.controller;
 
+import com.darc.shortlink.domain.entities.ShortUrl;
+import com.darc.shortlink.repositories.ShortLinkRepository;
+import com.darc.shortlink.services.ShortLinkService;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
+import java.util.List;
+
 @Controller
 public class HomeController {
 
+    private final ShortLinkService shortLinkService;
+
+    public HomeController(ShortLinkService shortLinkService) {
+        this.shortLinkService = shortLinkService;
+    }
+
     @GetMapping("/")
     public String home(Model model) {
-        model.addAttribute("title", "URL Shortener");
+//        List<ShortUrl> shortLinks = shortLinkRepository.findAll(Sort.by(Sort.Direction.DESC, "createdAt"));
+        List<ShortUrl> shortLinks = shortLinkService.findPublicShortUrls();
+        model.addAttribute("shortLinks", shortLinks);
+        model.addAttribute("baseUrl", "http://localhost:8080/");
         return "index";
     }
 
-    @GetMapping("/about")
-    public String about() {
-        return "about";
-    }
 }
