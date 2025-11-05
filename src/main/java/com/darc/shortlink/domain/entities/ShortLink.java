@@ -7,7 +7,7 @@ import java.time.Instant;
 
 @Entity
 @Table(name = "short_urls")
-public class ShortUrl {
+public class ShortLink {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "short_urls_id_gen")
     @SequenceGenerator(name = "short_urls_id_gen", sequenceName = "short_urls_id_seq", allocationSize = 1)
@@ -26,6 +26,10 @@ public class ShortUrl {
 
     @Column(name = "expires_at")
     private Instant expiresAt;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "created_by")
+    private User createdBy;
 
     @ColumnDefault("0")
     @Column(name = "click_count", nullable = false)
@@ -73,6 +77,14 @@ public class ShortUrl {
 
     public void setExpiresAt(Instant expiresAt) {
         this.expiresAt = expiresAt;
+    }
+
+    public User getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(User createdBy) {
+        this.createdBy = createdBy;
     }
 
     public Long getClickCount() {
