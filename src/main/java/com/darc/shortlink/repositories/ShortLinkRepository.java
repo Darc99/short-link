@@ -11,8 +11,7 @@ public interface ShortLinkRepository extends JpaRepository<ShortLink, Long> {
 
 //    List<ShortUrl> findByIsPrivateIsFalseOrderByCreatedAtDesc();
 
-//    @EntityGraph(attributePaths = {"createdBy"})
 //    using join fetch to fetch associated data
     @Query("select su from ShortLink su left join fetch su.createdBy where su.isPrivate = false order by su.createdAt desc")
-    List<ShortLink> findPublicShortUrls();
+    List<ShortLink> findAllPublicShortUrls();
 }
