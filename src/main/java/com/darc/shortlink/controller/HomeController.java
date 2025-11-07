@@ -1,6 +1,8 @@
 package com.darc.shortlink.controller;
 
+import com.darc.shortlink.ApplicationProperties;
 import com.darc.shortlink.domain.models.CreateShortLinkForm;
+import com.darc.shortlink.domain.models.CreateShortUrlCmd;
 import com.darc.shortlink.domain.models.ShortLinkDto;
 import com.darc.shortlink.services.ShortLinkService;
 import jakarta.validation.Valid;
@@ -18,9 +20,11 @@ import java.util.List;
 public class HomeController {
 
     private final ShortLinkService shortLinkService;
+    private final ApplicationProperties properties;
 
-    public HomeController(ShortLinkService shortLinkService) {
+    public HomeController(ShortLinkService shortLinkService, ApplicationProperties properties) {
         this.shortLinkService = shortLinkService;
+        this.properties = properties;
     }
 
     @GetMapping("/")
@@ -28,7 +32,7 @@ public class HomeController {
 //        List<ShortUrl> shortLinks = shortLinkRepository.findAll(Sort.by(Sort.Direction.DESC, "createdAt"));
         List<ShortLinkDto> shortLinks = shortLinkService.findAllPublicShortUrls();
         model.addAttribute("shortLinks", shortLinks);
-        model.addAttribute("baseUrl", "http://localhost:8080/");
+        model.addAttribute("baseUrl", properties.baseUrl());
         model.addAttribute("createShortLinkForm", new CreateShortLinkForm(""));
         return "index";
     }
@@ -40,13 +44,18 @@ public class HomeController {
         if (bindingResult.hasErrors()) {
             List<ShortLinkDto> shortLinks = shortLinkService.findAllPublicShortUrls();
             model.addAttribute("shortLinks", shortLinks);
-            model.addAttribute("baseUrl", "http://localhost:8080/");
+            model.addAttribute("baseUrl", properties.baseUrl());
             return "index";
         }
 
-
-
-        redirectAttributes.addFlashAttribute("successMessage", "Short Url created successfully");
+        try {
+            CreateShortUrlCmd cmd = new CreateShortUrlCmd(form.originalUrl());
+            var shortUrlDto = shortLinkService.createShortUrl(cmd);
+            redirectAttributes.addFlashAttribute("successMessage", "Short Url created successfully" +
+                    properties.baseUrl()+"/s/"+shortUrlDto.shortKey());
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Failed to create short url");
+        }
         return "redirect:/";
     }
 

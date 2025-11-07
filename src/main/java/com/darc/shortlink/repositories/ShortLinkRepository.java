@@ -14,4 +14,6 @@ public interface ShortLinkRepository extends JpaRepository<ShortLink, Long> {
 //    using join fetch to fetch associated data
     @Query("select su from ShortLink su left join fetch su.createdBy where su.isPrivate = false order by su.createdAt desc")
     List<ShortLink> findAllPublicShortUrls();
+
+    boolean existsByShortKey(String shortKey);
 }
