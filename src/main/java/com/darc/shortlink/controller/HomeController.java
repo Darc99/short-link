@@ -1,6 +1,7 @@
 package com.darc.shortlink.controller;
 
 import com.darc.shortlink.ApplicationProperties;
+import com.darc.shortlink.domain.exceptions.ShortLinkNotFoundException;
 import com.darc.shortlink.domain.models.CreateShortLinkForm;
 import com.darc.shortlink.domain.models.CreateShortUrlCmd;
 import com.darc.shortlink.domain.models.ShortLinkDto;
@@ -11,10 +12,12 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
+import java.util.Optional;
 
 @Controller
 public class HomeController {
@@ -59,5 +62,14 @@ public class HomeController {
         return "redirect:/";
     }
 
+    @GetMapping("/s/{shortKey}")
+    String redirectToOriginalUrl(@PathVariable String shortKey) {
+        Optional<ShortLinkDto> shortLinkDtoOptional = shortLinkService.accessShortUrl(shortKey);
+        if (shortLinkDtoOptional.isEmpty()) {
+            throw new ShortLinkNotFoundException("Short link does not exist: " + shortKey);
+        }
+        ShortLinkDto shortLinkDto = shortLinkDtoOptional.get();
+        return "redirect:"+shortLinkDto.originalUrl();
+    }
 
 }

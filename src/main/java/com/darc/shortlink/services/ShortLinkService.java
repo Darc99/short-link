@@ -12,6 +12,7 @@ import java.security.SecureRandom;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional(readOnly = true)
@@ -73,5 +74,20 @@ public class ShortLinkService {
             sb.append(CHARACTERS.charAt(RANDOM.nextInt(CHARACTERS.length())));
         }
         return sb.toString();
+    }
+
+    @Transactional // doing a "write" operation
+    public Optional<ShortLinkDto> accessShortUrl(String shortKey) {
+       Optional<ShortLink> shortLinkOptional = shortLinkRepository.findByShortKey(shortKey);
+       if(shortLinkOptional.isEmpty()) {
+           return Optional.empty();
+       }
+       ShortLink shortLink = shortLinkOptional.get();
+       if (shortLink.getExpiresAt() != null && shortLink.getExpiresAt().isBefore(Instant.now())) {
+           return Optional.empty();
+       }
+       shortLink.setClickCount(shortLink.getClickCount() + 1);
+       shortLinkRepository.save(shortLink);
+       return Optional.of(entityMapper.toShortLinkDto(shortLink));
     }
 }
