@@ -1,6 +1,7 @@
 package com.darc.shortlink.controller;
 
 import com.darc.shortlink.ApplicationProperties;
+import com.darc.shortlink.domain.entities.User;
 import com.darc.shortlink.domain.exceptions.ShortLinkNotFoundException;
 import com.darc.shortlink.domain.models.CreateShortLinkForm;
 import com.darc.shortlink.domain.models.CreateShortUrlCmd;
@@ -24,14 +25,18 @@ public class HomeController {
 
     private final ShortLinkService shortLinkService;
     private final ApplicationProperties properties;
+    private final SecurityUtils securityUtils;
 
-    public HomeController(ShortLinkService shortLinkService, ApplicationProperties properties) {
+    public HomeController(ShortLinkService shortLinkService, ApplicationProperties properties, SecurityUtils securityUtils) {
         this.shortLinkService = shortLinkService;
         this.properties = properties;
+        this.securityUtils = securityUtils;
     }
 
     @GetMapping("/")
     public String home(Model model) {
+        User currentUser = securityUtils.getCurrentUser();
+
 //        List<ShortUrl> shortLinks = shortLinkRepository.findAll(Sort.by(Sort.Direction.DESC, "createdAt"));
         List<ShortLinkDto> shortLinks = shortLinkService.findAllPublicShortUrls();
         model.addAttribute("shortLinks", shortLinks);
@@ -70,6 +75,11 @@ public class HomeController {
         }
         ShortLinkDto shortLinkDto = shortLinkDtoOptional.get();
         return "redirect:"+shortLinkDto.originalUrl();
+    }
+
+    @GetMapping("/login")
+    String loginForm() {
+        return "login";
     }
 
 }
