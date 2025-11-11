@@ -35,13 +35,13 @@ public class HomeController {
 
     @GetMapping("/")
     public String home(Model model) {
-        User currentUser = securityUtils.getCurrentUser();
+//        User currentUser = securityUtils.getCurrentUser();
 
 //        List<ShortUrl> shortLinks = shortLinkRepository.findAll(Sort.by(Sort.Direction.DESC, "createdAt"));
         List<ShortLinkDto> shortLinks = shortLinkService.findAllPublicShortUrls();
         model.addAttribute("shortLinks", shortLinks);
         model.addAttribute("baseUrl", properties.baseUrl());
-        model.addAttribute("createShortLinkForm", new CreateShortLinkForm(""));
+        model.addAttribute("createShortLinkForm", new CreateShortLinkForm("", false, null));
         return "index";
     }
 
@@ -57,7 +57,13 @@ public class HomeController {
         }
 
         try {
-            CreateShortUrlCmd cmd = new CreateShortUrlCmd(form.originalUrl());
+            Long userId = securityUtils.getCurrentUserId();
+            CreateShortUrlCmd cmd = new CreateShortUrlCmd(
+                    form.originalUrl(),
+                    form.isPrivate(),
+                    form.expirationInDays(),
+                    userId
+                    );
             var shortUrlDto = shortLinkService.createShortUrl(cmd);
             redirectAttributes.addFlashAttribute("successMessage", "Short Url created successfully" +
                     properties.baseUrl()+"/s/"+shortUrlDto.shortKey());
