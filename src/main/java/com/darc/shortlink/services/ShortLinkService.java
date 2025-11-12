@@ -11,8 +11,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import static java.time.temporal.ChronoUnit.DAYS;
@@ -89,13 +89,17 @@ public class ShortLinkService {
     }
 
     @Transactional // doing a "write" operation
-    public Optional<ShortLinkDto> accessShortUrl(String shortKey) {
+    public Optional<ShortLinkDto> accessShortUrl(String shortKey, Long userId) {
        Optional<ShortLink> shortLinkOptional = shortLinkRepository.findByShortKey(shortKey);
        if(shortLinkOptional.isEmpty()) {
            return Optional.empty();
        }
        ShortLink shortLink = shortLinkOptional.get();
        if (shortLink.getExpiresAt() != null && shortLink.getExpiresAt().isBefore(Instant.now())) {
+           return Optional.empty();
+       }
+       if(shortLink.getIsPrivate() != null && shortLink.getCreatedBy() != null
+               && !Objects.equals(shortLink.getId(), userId)) {
            return Optional.empty();
        }
        shortLink.setClickCount(shortLink.getClickCount() + 1);

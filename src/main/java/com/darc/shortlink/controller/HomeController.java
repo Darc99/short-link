@@ -75,7 +75,8 @@ public class HomeController {
 
     @GetMapping("/s/{shortKey}")
     String redirectToOriginalUrl(@PathVariable String shortKey) {
-        Optional<ShortLinkDto> shortLinkDtoOptional = shortLinkService.accessShortUrl(shortKey);
+        Long userId = securityUtils.getCurrentUserId();
+        Optional<ShortLinkDto> shortLinkDtoOptional = shortLinkService.accessShortUrl(shortKey, userId);
         if (shortLinkDtoOptional.isEmpty()) {
             throw new ShortLinkNotFoundException("Short link does not exist: " + shortKey);
         }
